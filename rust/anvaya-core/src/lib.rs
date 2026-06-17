@@ -1,4 +1,5 @@
 pub mod gate;
+pub mod circuit;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
