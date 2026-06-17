@@ -74,3 +74,57 @@ impl fmt::Display for CircuitError {
 }
 
 impl std::error::Error for CircuitError {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::gate::Gate;
+
+    #[test]
+    fn test_circuit_creation() {
+        let circuit = Circuit::new(3);
+        assert_eq!(circuit.num_qubits, 3);
+        assert!(circuit.operations.is_empty());
+    }
+
+    #[test]
+    fn test_add_valid_gate() -> Result<(), CircuitError> {
+        let mut circuit = Circuit::new(3);
+        circuit.add_gate(Gate::H, vec![0])?;
+        circuit.add_gate(Gate::CNOT, vec![0, 1])?;
+        assert_eq!(circuit.operations.len(), 2);
+        Ok(())
+    }
+
+    #[test]
+    fn test_invalid_qubit_index() {
+        let mut circuit = Circuit::new(2);
+        let err = circuit.add_gate(Gate::X, vec![5]).unwrap_err();
+        assert!(matches!(err, CircuitError::QubitOutOfRange { qubit: 5, max: 1 }));
+    }
+
+    #[test]
+    fn test_invalid_target_count() {
+        let mut circuit = Circuit::new(2);
+        let err = circuit.add_gate(Gate::CNOT, vec![0]).unwrap_err();
+        assert!(matches!(err, CircuitError::InvalidTargetCount { .. }));
+    }
+
+    #[test]
+    fn test_barrier_accepts_any_targets() {
+        let mut circuit = Circuit::new(4);
+        assert!(circuit.add_gate(Gate::Barrier, vec![0, 1, 2, 3]).is_ok());
+        assert!(circuit.add_gate(Gate::Barrier, vec![]).is_ok());
+    }
+
+    #[test]
+    fn test_circuit_display() {
+        let mut circuit = Circuit::new(2);
+        circuit.add_gate(Gate::H, vec![0]).unwrap();
+        circuit.add_gate(Gate::CNOT, vec![0, 1]).unwrap();
+        let display = format!("{}", circuit);
+        assert!(display.contains("Circuit on 2 qubits"));
+        assert!(display.contains("H [0]"));
+        assert!(display.contains("CNOT [0, 1]"));
+    }
+}
