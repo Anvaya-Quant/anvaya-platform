@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test"]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/.next", "{projectRoot}/pkg"]
+    },
+    "lint": {
+      "inputs": ["default"],
+      "cache": true
+    },
+    "test": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": ["default", "!{projectRoot}/**/*.spec.ts", "!{projectRoot}/**/*.test.ts", "!{projectRoot}/**/*.spec.tsx", "!{projectRoot}/**/*.test.tsx"],
+    "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
+  }
+}

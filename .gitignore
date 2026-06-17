@@ -1,1 +1,10 @@
-Agents.md
+node_modules
+.next
+target
+pkg
+dist
+.nx
+project-graph.json
+.pnpm-debug.log
+pnpm-lock.yaml
+*.lock

@@ -1,0 +1,16 @@
+{
+  "name": "anvaya-platform",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+
+  "scripts": {
+    "nx": "nx",
+    "build": "nx run-many --target=build",
+    "lint": "nx run-many --target=lint",
+    "test": "nx run-many --target=test"
+  },
+  "devDependencies": {
+    "nx": "latest",
+    "@nx/js": "latest"
+  }
+}
