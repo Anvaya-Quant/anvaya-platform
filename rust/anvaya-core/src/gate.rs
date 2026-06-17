@@ -49,3 +49,27 @@ impl Gate {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gate_num_qubits() {
+        assert_eq!(Gate::X.num_qubits(), 1);
+        assert_eq!(Gate::H.num_qubits(), 1);
+        assert_eq!(Gate::Rx(0.5).num_qubits(), 1);
+        assert_eq!(Gate::CNOT.num_qubits(), 2);
+        assert_eq!(Gate::SWAP.num_qubits(), 2);
+        assert_eq!(Gate::Measure.num_qubits(), 1);
+        assert_eq!(Gate::Barrier.num_qubits(), 0);
+    }
+
+    #[test]
+    fn test_gate_display() {
+        assert_eq!(format!("{}", Gate::X), "X");
+        assert_eq!(format!("{}", Gate::H), "H");
+        assert_eq!(format!("{}", Gate::Rx(1.2)), "Rx(1.200)");
+        assert_eq!(format!("{}", Gate::CNOT), "CNOT");
+    }
+}
