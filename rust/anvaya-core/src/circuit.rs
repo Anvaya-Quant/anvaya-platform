@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::gate::Gate;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Circuit {
@@ -46,7 +46,9 @@ impl fmt::Display for Circuit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Circuit on {} qubits:", self.num_qubits)?;
         for (i, op) in self.operations.iter().enumerate() {
-            let targets = op.targets.iter()
+            let targets = op
+                .targets
+                .iter()
                 .map(|q| q.to_string())
                 .collect::<Vec<_>>()
                 .join(", ");
@@ -58,17 +60,32 @@ impl fmt::Display for Circuit {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CircuitError {
-    QubitOutOfRange { qubit: usize, max: usize },
-    InvalidTargetCount { gate: String, expected: usize, got: usize },
+    QubitOutOfRange {
+        qubit: usize,
+        max: usize,
+    },
+    InvalidTargetCount {
+        gate: String,
+        expected: usize,
+        got: usize,
+    },
 }
 
 impl fmt::Display for CircuitError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            CircuitError::QubitOutOfRange { qubit, max } =>
-                write!(f, "Qubit {} out of range (max {})", qubit, max),
-            CircuitError::InvalidTargetCount { gate, expected, got } =>
-                write!(f, "Gate {} requires {} target(s), got {}", gate, expected, got),
+            CircuitError::QubitOutOfRange { qubit, max } => {
+                write!(f, "Qubit {} out of range (max {})", qubit, max)
+            }
+            CircuitError::InvalidTargetCount {
+                gate,
+                expected,
+                got,
+            } => write!(
+                f,
+                "Gate {} requires {} target(s), got {}",
+                gate, expected, got
+            ),
         }
     }
 }
@@ -100,7 +117,10 @@ mod tests {
     fn test_invalid_qubit_index() {
         let mut circuit = Circuit::new(2);
         let err = circuit.add_gate(Gate::X, vec![5]).unwrap_err();
-        assert!(matches!(err, CircuitError::QubitOutOfRange { qubit: 5, max: 1 }));
+        assert!(matches!(
+            err,
+            CircuitError::QubitOutOfRange { qubit: 5, max: 1 }
+        ));
     }
 
     #[test]

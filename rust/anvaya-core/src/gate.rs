@@ -42,8 +42,16 @@ impl fmt::Display for Gate {
 impl Gate {
     pub fn num_qubits(&self) -> usize {
         match self {
-            Gate::X | Gate::Y | Gate::Z | Gate::H | Gate::S | Gate::T
-            | Gate::Rx(_) | Gate::Ry(_) | Gate::Rz(_) | Gate::Measure => 1,
+            Gate::X
+            | Gate::Y
+            | Gate::Z
+            | Gate::H
+            | Gate::S
+            | Gate::T
+            | Gate::Rx(_)
+            | Gate::Ry(_)
+            | Gate::Rz(_)
+            | Gate::Measure => 1,
             Gate::CNOT | Gate::CZ | Gate::SWAP => 2,
             Gate::Barrier => 0,
         }
