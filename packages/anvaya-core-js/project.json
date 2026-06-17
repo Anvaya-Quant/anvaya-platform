@@ -1,0 +1,30 @@
+{
+  "name": "@anvaya/core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/anvaya-core-js",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node build.mjs",
+        "cwd": "packages/anvaya-core-js"
+      },
+      "inputs": [
+        "{workspaceRoot}/rust/anvaya-core/**/*",
+        "{workspaceRoot}/rust/anvaya-core-wasm/**/*",
+        "{workspaceRoot}/rust/Cargo.lock",
+        "{projectRoot}/build.mjs"
+      ],
+      "outputs": [
+        "{projectRoot}/pkg"
+      ]
+    },
+    "lint": {
+      "executor": "nx:noop"
+    },
+    "test": {
+      "executor": "nx:noop"
+    }
+  }
+}

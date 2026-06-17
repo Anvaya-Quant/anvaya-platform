@@ -2,6 +2,9 @@
   "name": "@anvaya/core",
   "version": "0.1.0",
   "private": true,
-  "main": "index.js",
-  "types": "index.d.ts"
+  "main": "pkg/anvaya_core.js",
+  "types": "pkg/anvaya_core.d.ts",
+  "scripts": {
+    "build": "node build.mjs"
+  }
 }

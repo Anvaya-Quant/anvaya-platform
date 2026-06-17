@@ -6,6 +6,7 @@
   "scripts": {
     "nx": "nx",
     "build": "nx run-many --target=build",
+    "build:wasm": "nx build @anvaya/core",
     "lint": "nx run-many --target=lint",
     "test": "nx run-many --target=test"
   },
