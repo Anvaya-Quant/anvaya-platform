@@ -1,15 +1,19 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useCoreReady } from '@/hooks/useCoreReady';
 import { useCircuitStore } from '@/store/circuitStore';
 import CircuitCanvas from '@/components/CircuitCanvas/CircuitCanvas';
 import GatePalette from '@/components/CircuitCanvas/GatePalette';
 import ProbabilityHistogram from '@/components/ProbabilityHistogram';
 
+const BlochSphere = dynamic(() => import('@/components/BlochSphere'), { ssr: false });
+
 export default function Home() {
   const { ready, error } = useCoreReady();
   const {
     numQubits,
+    stateVector,
     probabilities,
     status,
     setNumQubits,
@@ -54,10 +58,25 @@ export default function Home() {
         <GatePalette />
       </div>
 
-      {probabilities && probabilities.length > 0 && (
+      {((probabilities && probabilities.length > 0) || (stateVector && numQubits === 1)) && (
         <div className="bg-gray-900 border-t border-gray-700 p-4 max-w-full overflow-x-auto">
-          <h2 className="text-sm font-semibold text-gray-300 mb-2">Probabilities</h2>
-          <ProbabilityHistogram probabilities={probabilities} numQubits={numQubits} />
+          {numQubits === 1 && stateVector ? (
+            <div>
+              <h2 className="text-sm font-semibold text-gray-300 mb-2">Bloch Sphere</h2>
+              <BlochSphere stateVector={stateVector} />
+              {probabilities && (
+                <>
+                  <h2 className="text-sm font-semibold text-gray-300 mt-4 mb-2">Measurement Probabilities</h2>
+                  <ProbabilityHistogram probabilities={probabilities} numQubits={numQubits} />
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <h2 className="text-sm font-semibold text-gray-300 mb-2">Probabilities</h2>
+              <ProbabilityHistogram probabilities={probabilities || []} numQubits={numQubits} />
+            </>
+          )}
         </div>
       )}
     </main>
