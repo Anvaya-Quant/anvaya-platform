@@ -9,3 +9,7 @@ crate-type = ["cdylib"]
 [dependencies]
 anvaya-core = { path = "../anvaya-core" }
 wasm-bindgen = "0.2"
+js-sys = "0.3"
+num-complex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
