@@ -4,6 +4,7 @@ import { useCoreReady } from '@/hooks/useCoreReady';
 import { useCircuitStore } from '@/store/circuitStore';
 import CircuitCanvas from '@/components/CircuitCanvas/CircuitCanvas';
 import GatePalette from '@/components/CircuitCanvas/GatePalette';
+import ProbabilityHistogram from '@/components/ProbabilityHistogram';
 
 export default function Home() {
   const { ready, error } = useCoreReady();
@@ -54,21 +55,9 @@ export default function Home() {
       </div>
 
       {probabilities && probabilities.length > 0 && (
-        <div className="bg-gray-900 border-t border-gray-700 p-3 max-h-40 overflow-y-auto">
-          <h2 className="text-sm font-semibold mb-2">Probabilities</h2>
-          <div className="flex flex-wrap gap-2">
-            {probabilities.map((p, idx) => (
-              <div
-                key={idx}
-                className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm"
-              >
-                <span className="text-gray-400">
-                  |{idx.toString(2).padStart(numQubits, '0')}⟩:{' '}
-                </span>
-                <span className="text-green-400">{(p * 100).toFixed(1)}%</span>
-              </div>
-            ))}
-          </div>
+        <div className="bg-gray-900 border-t border-gray-700 p-4 max-w-full overflow-x-auto">
+          <h2 className="text-sm font-semibold text-gray-300 mb-2">Probabilities</h2>
+          <ProbabilityHistogram probabilities={probabilities} numQubits={numQubits} />
         </div>
       )}
     </main>
