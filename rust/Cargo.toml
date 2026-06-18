@@ -4,5 +4,6 @@ members = [
     "anvaya-core",
     "anvaya-core-wasm",
     "anvaya-pulse",
+    "anvaya-pulse-wasm",
     "anvaya-simulator",
 ]
