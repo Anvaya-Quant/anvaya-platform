@@ -16,7 +16,7 @@ export default function ProbabilityHistogram({ probabilities, numQubits }: Proba
         const heightPercent = (prob / maxProb) * 100;
         const binaryLabel = idx.toString(2).padStart(numQubits, '0');
         return (
-          <div key={idx} className="flex flex-col items-center flex-1 min-w-[20px]">
+          <div key={idx} className="flex flex-col items-center flex-1 min-w-[20px]" data-testid="probability-bar">
             <span className="text-xs text-green-400 mb-1">
               {(prob * 100).toFixed(1)}%
             </span>
