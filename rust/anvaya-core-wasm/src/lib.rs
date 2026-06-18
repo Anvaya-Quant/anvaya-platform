@@ -77,6 +77,34 @@ impl AnvayaCircuit {
         self.circuit = circuit;
         Ok(())
     }
+
+    pub fn get_gates_json(&self) -> String {
+        use anvaya_core::gate::Gate;
+        let gates: Vec<serde_json::Value> = self.circuit.operations.iter().map(|op| {
+            let (gate_type, angle) = match &op.gate {
+                Gate::X => ("x".to_string(), None),
+                Gate::Y => ("y".to_string(), None),
+                Gate::Z => ("z".to_string(), None),
+                Gate::H => ("h".to_string(), None),
+                Gate::S => ("s".to_string(), None),
+                Gate::T => ("t".to_string(), None),
+                Gate::Rx(theta) => ("rx".to_string(), Some(*theta)),
+                Gate::Ry(theta) => ("ry".to_string(), Some(*theta)),
+                Gate::Rz(theta) => ("rz".to_string(), Some(*theta)),
+                Gate::CNOT => ("cx".to_string(), None),
+                Gate::CZ => ("cz".to_string(), None),
+                Gate::SWAP => ("swap".to_string(), None),
+                Gate::Measure => ("measure".to_string(), None),
+                Gate::Barrier => ("barrier".to_string(), None),
+            };
+            serde_json::json!({
+                "gate": gate_type,
+                "targets": op.targets,
+                "angle": angle
+            })
+        }).collect();
+        serde_json::to_string(&gates).unwrap_or_else(|_| "[]".to_string())
+    }
 }
 
 #[wasm_bindgen]

@@ -27,6 +27,25 @@ interface CircuitState {
   optimize: () => Promise<void>;
 }
 
+async function rebuildCircuitFromGates(numQubits: number, gates: GateOp[]): Promise<AnvayaCircuit> {
+  const circuit = await createCircuit(numQubits);
+  for (const g of gates) {
+    circuit.add_gate(g.gate, new Uint32Array(g.targets), g.angle ?? null);
+  }
+  return circuit;
+}
+
+async function extractGatesFromWasm(circuit: AnvayaCircuit): Promise<GateOp[]> {
+  const json = circuit.get_gates_json();
+  const raw = JSON.parse(json) as Array<{ gate: string; targets: number[]; angle: number | null }>;
+  return raw.map((item) => ({
+    id: crypto.randomUUID(),
+    gate: item.gate,
+    targets: item.targets,
+    angle: item.angle ?? undefined,
+  }));
+}
+
 export const useCircuitStore = create<CircuitState>((set, get) => ({
   numQubits: 2,
   gates: [],
@@ -72,27 +91,36 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
     }
   },
 
-  loadQasm: async (_qasm: string) => {
-    console.warn('loadQasm fully implemented later');
+  loadQasm: async (qasm: string) => {
+    try {
+      const { AnvayaCircuit } = await import('@anvaya/core');
+      const circuit = new AnvayaCircuit(1);
+      circuit.parse_qasm(qasm);
+      const gates = await extractGatesFromWasm(circuit);
+      const allTargets = gates.flatMap(g => g.targets);
+      const maxQubit = allTargets.length > 0 ? Math.max(...allTargets) : 0;
+      const numQubits = maxQubit + 1;
+      set({ numQubits, gates, stateVector: null, probabilities: null, status: 'idle' });
+    } catch (err: any) {
+      set({ status: 'error', errorMessage: err.message || String(err) });
+    }
   },
 
   toQasm: async () => {
     const { numQubits, gates } = get();
-    const circuit = await createCircuit(numQubits);
-    for (const g of gates) {
-      circuit.add_gate(g.gate, new Uint32Array(g.targets), g.angle ?? null);
-    }
+    const circuit = await rebuildCircuitFromGates(numQubits, gates);
     return circuit.to_qasm();
   },
 
   optimize: async () => {
     const { numQubits, gates } = get();
-    const circuit = await createCircuit(numQubits);
-    for (const g of gates) {
-      circuit.add_gate(g.gate, new Uint32Array(g.targets), g.angle ?? null);
+    try {
+      const circuit = await rebuildCircuitFromGates(numQubits, gates);
+      circuit.optimize();
+      const optimizedGates = await extractGatesFromWasm(circuit);
+      set({ gates: optimizedGates, stateVector: null, probabilities: null, status: 'idle' });
+    } catch (err: any) {
+      set({ status: 'error', errorMessage: err.message || String(err) });
     }
-    circuit.optimize();
-    const qasm = circuit.to_qasm();
-    console.log('Optimized QASM:', qasm);
   },
 }));
