@@ -281,7 +281,8 @@ impl<'a> Parser<'a> {
                 let _ = self.parse_qubit_ref()?;
                 self.expect(Token::Semicolon)?;
                 let qubit = self.resolve_qubit(&qname, qidx)?;
-                circuit.add_gate(Gate::Measure, vec![qubit])
+                circuit
+                    .add_gate(Gate::Measure, vec![qubit])
                     .map_err(|e| format!("circuit error: {:?}", e))?;
                 return Ok(());
             }
@@ -298,7 +299,8 @@ impl<'a> Parser<'a> {
                     }
                 }
                 self.expect(Token::Semicolon)?;
-                circuit.add_gate(Gate::Barrier, targets)
+                circuit
+                    .add_gate(Gate::Barrier, targets)
                     .map_err(|e| format!("circuit error: {:?}", e))?;
                 return Ok(());
             }

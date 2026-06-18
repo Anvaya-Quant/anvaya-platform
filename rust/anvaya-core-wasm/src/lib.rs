@@ -1,17 +1,14 @@
 use anvaya_core::circuit::Circuit;
 use anvaya_core::gate::Gate;
-use anvaya_core::simulator::simulate;
 use anvaya_core::optimizer::optimize;
 use anvaya_core::qasm::{parse_qasm, to_qasm};
+use anvaya_core::simulator::simulate;
 
-use wasm_bindgen::prelude::*;
 use js_sys::Float64Array;
+use wasm_bindgen::prelude::*;
 
 fn state_to_js(state: &[num_complex::Complex64]) -> Float64Array {
-    let flat: Vec<f64> = state
-        .iter()
-        .flat_map(|c| vec![c.re, c.im])
-        .collect();
+    let flat: Vec<f64> = state.iter().flat_map(|c| vec![c.re, c.im]).collect();
     Float64Array::from(&flat[..])
 }
 
@@ -58,8 +55,7 @@ impl AnvayaCircuit {
     }
 
     pub fn simulate(&self) -> Result<Float64Array, JsValue> {
-        let state = simulate(&self.circuit)
-            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        let state = simulate(&self.circuit).map_err(|e| JsValue::from_str(&e.to_string()))?;
         Ok(state_to_js(&state))
     }
 
@@ -80,29 +76,34 @@ impl AnvayaCircuit {
 
     pub fn get_gates_json(&self) -> String {
         use anvaya_core::gate::Gate;
-        let gates: Vec<serde_json::Value> = self.circuit.operations.iter().map(|op| {
-            let (gate_type, angle) = match &op.gate {
-                Gate::X => ("x".to_string(), None),
-                Gate::Y => ("y".to_string(), None),
-                Gate::Z => ("z".to_string(), None),
-                Gate::H => ("h".to_string(), None),
-                Gate::S => ("s".to_string(), None),
-                Gate::T => ("t".to_string(), None),
-                Gate::Rx(theta) => ("rx".to_string(), Some(*theta)),
-                Gate::Ry(theta) => ("ry".to_string(), Some(*theta)),
-                Gate::Rz(theta) => ("rz".to_string(), Some(*theta)),
-                Gate::CNOT => ("cx".to_string(), None),
-                Gate::CZ => ("cz".to_string(), None),
-                Gate::SWAP => ("swap".to_string(), None),
-                Gate::Measure => ("measure".to_string(), None),
-                Gate::Barrier => ("barrier".to_string(), None),
-            };
-            serde_json::json!({
-                "gate": gate_type,
-                "targets": op.targets,
-                "angle": angle
+        let gates: Vec<serde_json::Value> = self
+            .circuit
+            .operations
+            .iter()
+            .map(|op| {
+                let (gate_type, angle) = match &op.gate {
+                    Gate::X => ("x".to_string(), None),
+                    Gate::Y => ("y".to_string(), None),
+                    Gate::Z => ("z".to_string(), None),
+                    Gate::H => ("h".to_string(), None),
+                    Gate::S => ("s".to_string(), None),
+                    Gate::T => ("t".to_string(), None),
+                    Gate::Rx(theta) => ("rx".to_string(), Some(*theta)),
+                    Gate::Ry(theta) => ("ry".to_string(), Some(*theta)),
+                    Gate::Rz(theta) => ("rz".to_string(), Some(*theta)),
+                    Gate::CNOT => ("cx".to_string(), None),
+                    Gate::CZ => ("cz".to_string(), None),
+                    Gate::SWAP => ("swap".to_string(), None),
+                    Gate::Measure => ("measure".to_string(), None),
+                    Gate::Barrier => ("barrier".to_string(), None),
+                };
+                serde_json::json!({
+                    "gate": gate_type,
+                    "targets": op.targets,
+                    "angle": angle
+                })
             })
-        }).collect();
+            .collect();
         serde_json::to_string(&gates).unwrap_or_else(|_| "[]".to_string())
     }
 }
