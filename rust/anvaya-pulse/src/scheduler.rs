@@ -1,8 +1,6 @@
-use anvaya_core::circuit::{Circuit, GateOperation};
+use crate::pulse::{Channel, Pulse, PulseSequence, PulseShape, ScheduledPulse};
+use anvaya_core::circuit::Circuit;
 use anvaya_core::gate::Gate;
-use crate::pulse::{
-    Channel, Pulse, PulseSequence, PulseShape, ScheduledPulse,
-};
 
 #[derive(Debug, Clone)]
 pub struct BackendSpec {
@@ -54,12 +52,7 @@ pub fn schedule(circuit: &Circuit, backend: &BackendSpec) -> Result<PulseSequenc
                     let start = qubit_time[q].max(measurement_channel_time);
                     let duration = backend.measurement_time;
                     pulses.push(ScheduledPulse {
-                        pulse: Pulse::new(
-                            PulseShape::Square,
-                            1.0,
-                            duration,
-                            Channel::Measure(q),
-                        ),
+                        pulse: Pulse::new(PulseShape::Square, 1.0, duration, Channel::Measure(q)),
                         start_time: start,
                     });
                     measurement_channel_time = start + duration;
@@ -79,7 +72,9 @@ pub fn schedule(circuit: &Circuit, backend: &BackendSpec) -> Result<PulseSequenc
                 for &q in &[q0, q1] {
                     pulses.push(ScheduledPulse {
                         pulse: Pulse::new(
-                            PulseShape::Gaussian { sigma: backend.gaussian_sigma },
+                            PulseShape::Gaussian {
+                                sigma: backend.gaussian_sigma,
+                            },
                             1.0,
                             duration,
                             Channel::Drive(q),
@@ -101,7 +96,9 @@ pub fn schedule(circuit: &Circuit, backend: &BackendSpec) -> Result<PulseSequenc
                 let duration = backend.single_qubit_gate_time;
                 pulses.push(ScheduledPulse {
                     pulse: Pulse::new(
-                        PulseShape::Gaussian { sigma: backend.gaussian_sigma },
+                        PulseShape::Gaussian {
+                            sigma: backend.gaussian_sigma,
+                        },
                         1.0,
                         duration,
                         Channel::Drive(q),
@@ -114,15 +111,18 @@ pub fn schedule(circuit: &Circuit, backend: &BackendSpec) -> Result<PulseSequenc
     }
 
     let total_duration = qubit_time.into_iter().fold(0.0_f64, f64::max);
-    Ok(PulseSequence { pulses, total_duration })
+    Ok(PulseSequence {
+        pulses,
+        total_duration,
+    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pulse::Channel;
     use anvaya_core::circuit::Circuit;
     use anvaya_core::gate::Gate;
-    use crate::pulse::Channel;
 
     #[test]
     fn test_single_qubit_gate_schedule() {
@@ -168,7 +168,9 @@ mod tests {
         let backend = BackendSpec::default();
         let seq = schedule(&circuit, &backend).unwrap();
         assert_eq!(seq.pulses.len(), 3);
-        let measure_pulses: Vec<_> = seq.pulses.iter()
+        let measure_pulses: Vec<_> = seq
+            .pulses
+            .iter()
             .filter(|sp| matches!(sp.pulse.channel, Channel::Measure(_)))
             .collect();
         assert_eq!(measure_pulses.len(), 2);
