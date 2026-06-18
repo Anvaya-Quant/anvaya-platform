@@ -137,3 +137,7 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
     set({ probabilities: probs, stateVector: null, status: 'idle' });
   },
 }));
+
+if (typeof window !== 'undefined') {
+  (window as any).__ANVAYA_STORE__ = useCircuitStore;
+}
