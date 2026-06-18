@@ -1,0 +1,46 @@
+import { test, expect } from '@playwright/test';
+
+test('can add Hadamard gate and see probabilities', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForSelector('text=ANVAYA Studio', { timeout: 30000 });
+  await page.waitForFunction(() => !document.body.innerText.includes('Loading ANVAYA Core'));
+
+  await page.fill('input[type="number"]', '1');
+
+  await page.evaluate(() => {
+    const store = (window as any).__ANVAYA_STORE__;
+    store.getState().addGate({ id: 'test-h', gate: 'h', targets: [0] });
+  });
+
+  await page.click('button:has-text("Simulate")');
+
+  await page.waitForSelector('.flex-col.items-center.flex-1', { timeout: 10000 });
+  const bars = page.locator('.flex-col.items-center.flex-1');
+  await expect(bars).toHaveCount(2);
+
+  const firstPercent = await bars.nth(0).locator('text=%').textContent();
+  expect(firstPercent).toMatch(/50\.\d?%|49\.\d?%|51\.\d?%/);
+  const secondPercent = await bars.nth(1).locator('text=%').textContent();
+  expect(secondPercent).toMatch(/50\.\d?%|49\.\d?%|51\.\d?%/);
+});
+
+test('optimizer removes redundant X gates', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => !document.body.innerText.includes('Loading ANVAYA Core'));
+
+  await page.fill('input[type="number"]', '1');
+
+  await page.evaluate(() => {
+    const store = (window as any).__ANVAYA_STORE__;
+    store.getState().addGate({ id: 'test-x1', gate: 'x', targets: [0] });
+    store.getState().addGate({ id: 'test-x2', gate: 'x', targets: [0] });
+  });
+
+  await page.waitForSelector('[data-type="gate"]');
+  await expect(page.locator('[data-type="gate"]')).toHaveCount(2);
+
+  await page.click('button:has-text("Optimize")');
+
+  await page.waitForTimeout(500);
+  await expect(page.locator('[data-type="gate"]')).toHaveCount(0);
+});
