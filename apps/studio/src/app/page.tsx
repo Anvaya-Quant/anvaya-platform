@@ -19,6 +19,8 @@ export default function Home() {
     setNumQubits,
     simulate,
     clearGates,
+    optimize,
+    toQasm,
   } = useCircuitStore();
 
   if (error) return <div className="text-red-500 p-8">Core load error: {error}</div>;
@@ -48,6 +50,31 @@ export default function Home() {
         </button>
         <button onClick={clearGates} className="bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-sm">
           Clear
+        </button>
+        <button
+          onClick={optimize}
+          className="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-sm"
+        >
+          Optimize
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const qasm = await toQasm();
+              const blob = new Blob([qasm], { type: 'text/plain' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'circuit.qasm';
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch (e) {
+              console.error('Export failed', e);
+            }
+          }}
+          className="bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-sm"
+        >
+          Export QASM
         </button>
       </div>
 
