@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+
+      - name: Lint Rust
+        run: |
+          cd rust
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Test Rust
+        run: cd rust && cargo test --all
+
+      - name: Build WASM packages
+        run: pnpm nx run-many --target=build --projects=@anvaya/core,@anvaya/pulse
+
+      - name: Lint TypeScript
+        run: pnpm nx lint studio
+
+      - name: Build Studio
+        run: pnpm nx build studio
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/studio
+
+      - name: Run Playwright E2E tests
+        run: pnpm test:ci
+        working-directory: apps/studio
+        env:
+          CI: true
