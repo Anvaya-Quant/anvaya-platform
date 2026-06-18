@@ -7,7 +7,10 @@ export async function getCore() {
     if (typeof window === 'undefined') {
       throw new Error('Anvaya Core can only be used in the browser');
     }
-    modulePromise = import('@anvaya/core');
+    modulePromise = import('@anvaya/core').then(async (mod) => {
+      await (mod as any).default();
+      return mod;
+    });
   }
   return modulePromise;
 }

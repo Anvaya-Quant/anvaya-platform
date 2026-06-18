@@ -26,6 +26,7 @@ function formatChannel(ch: string | { Drive: number } | { Measure: number }): st
 async function fetchPulseSequence(qasm: string): Promise<SeqDisplay | null> {
   try {
     const pulseModule = await import('@anvaya/pulse');
+    await (pulseModule as any).default();
     const json: string = pulseModule.schedule_from_qasm(qasm);
     const seq: PulseSequence = JSON.parse(json);
     const channelSet = new Set<string>();
