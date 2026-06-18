@@ -25,6 +25,7 @@ interface CircuitState {
   loadQasm: (qasm: string) => Promise<void>;
   toQasm: () => Promise<string>;
   optimize: () => Promise<void>;
+  setProbabilitiesFromCounts: (counts: Record<string, number>, totalShots: number) => void;
 }
 
 async function rebuildCircuitFromGates(numQubits: number, gates: GateOp[]): Promise<AnvayaCircuit> {
@@ -122,5 +123,17 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
     } catch (err: any) {
       set({ status: 'error', errorMessage: err.message || String(err) });
     }
+  },
+
+  setProbabilitiesFromCounts: (counts: Record<string, number>, totalShots: number) => {
+    const n = get().numQubits;
+    const probs: number[] = new Array(1 << n).fill(0);
+    for (const [bitstring, count] of Object.entries(counts)) {
+      const idx = parseInt(bitstring, 2);
+      if (!isNaN(idx) && idx < probs.length) {
+        probs[idx] = count / totalShots;
+      }
+    }
+    set({ probabilities: probs, stateVector: null, status: 'idle' });
   },
 }));
