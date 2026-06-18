@@ -14,13 +14,12 @@ test('can add Hadamard gate and see probabilities', async ({ page }) => {
 
   await page.click('button:has-text("Simulate")');
 
-  await page.waitForSelector('.flex-col.items-center.flex-1', { timeout: 10000 });
-  const bars = page.locator('.flex-col.items-center.flex-1');
-  await expect(bars).toHaveCount(2);
+  const bars = page.locator('[data-testid="probability-bar"]');
+  await expect(bars).toHaveCount(2, { timeout: 15000 });
 
-  const firstPercent = await bars.nth(0).locator('text=%').textContent();
+  const firstPercent = await bars.nth(0).locator('span').first().textContent();
   expect(firstPercent).toMatch(/50\.\d?%|49\.\d?%|51\.\d?%/);
-  const secondPercent = await bars.nth(1).locator('text=%').textContent();
+  const secondPercent = await bars.nth(1).locator('span').first().textContent();
   expect(secondPercent).toMatch(/50\.\d?%|49\.\d?%|51\.\d?%/);
 });
 
@@ -36,11 +35,10 @@ test('optimizer removes redundant X gates', async ({ page }) => {
     store.getState().addGate({ id: 'test-x2', gate: 'x', targets: [0] });
   });
 
-  await page.waitForSelector('[data-type="gate"]');
-  await expect(page.locator('[data-type="gate"]')).toHaveCount(2);
+  const gateNodes = page.locator('[data-testid="gate-node"]');
+  await expect(gateNodes).toHaveCount(2, { timeout: 15000 });
 
   await page.click('button:has-text("Optimize")');
 
-  await page.waitForTimeout(500);
-  await expect(page.locator('[data-type="gate"]')).toHaveCount(0);
+  await expect(gateNodes).toHaveCount(0, { timeout: 15000 });
 });
