@@ -9,6 +9,8 @@
     "build:wasm": "nx build @anvaya/core",
     "lint": "nx run-many --target=lint",
     "test": "nx run-many --target=test",
+    "test:ci": "pnpm nx run-many --target=test --all",
+    "lint:ci": "pnpm nx run-many --target=lint --all",
     "simulator:start": "cargo run -p anvaya-simulator -- serve"
   },
   "devDependencies": {
