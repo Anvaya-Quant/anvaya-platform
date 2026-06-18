@@ -1,6 +1,5 @@
 use wasm_bindgen::prelude::*;
 use anvaya_pulse::scheduler::{schedule, BackendSpec};
-use anvaya_pulse::pulse::PulseSequence;
 use anvaya_core::qasm::parse_qasm;
 
 #[wasm_bindgen]
