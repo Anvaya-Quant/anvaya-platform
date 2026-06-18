@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useCoreReady } from '@/hooks/useCoreReady';
 import { useCircuitStore } from '@/store/circuitStore';
 import CircuitCanvas from '@/components/CircuitCanvas/CircuitCanvas';
 import GatePalette from '@/components/CircuitCanvas/GatePalette';
 import ProbabilityHistogram from '@/components/ProbabilityHistogram';
+import PulseTimeline from '@/components/PulseTimeline';
 
 const BlochSphere = dynamic(() => import('@/components/BlochSphere'), { ssr: false });
 
@@ -13,6 +15,7 @@ export default function Home() {
   const { ready, error } = useCoreReady();
   const {
     numQubits,
+    gates,
     stateVector,
     probabilities,
     status,
@@ -22,6 +25,19 @@ export default function Home() {
     optimize,
     toQasm,
   } = useCircuitStore();
+
+  const [activeTab, setActiveTab] = useState<'probabilities' | 'pulse'>('probabilities');
+  const [pulseQasm, setPulseQasm] = useState('');
+
+  const loadPulse = async () => {
+    try {
+      const qasm = await toQasm();
+      setPulseQasm(qasm);
+      setActiveTab('pulse');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (error) return <div className="text-red-500 p-8">Core load error: {error}</div>;
   if (!ready) return <div className="text-gray-400 p-8">Loading ANVAYA Core...</div>;
@@ -85,25 +101,59 @@ export default function Home() {
         <GatePalette />
       </div>
 
-      {((probabilities && probabilities.length > 0) || (stateVector && numQubits === 1)) && (
-        <div className="bg-gray-900 border-t border-gray-700 p-4 max-w-full overflow-x-auto">
-          {numQubits === 1 && stateVector ? (
-            <div>
-              <h2 className="text-sm font-semibold text-gray-300 mb-2">Bloch Sphere</h2>
-              <BlochSphere stateVector={stateVector} />
-              {probabilities && (
-                <>
-                  <h2 className="text-sm font-semibold text-gray-300 mt-4 mb-2">Measurement Probabilities</h2>
-                  <ProbabilityHistogram probabilities={probabilities} numQubits={numQubits} />
-                </>
-              )}
-            </div>
-          ) : (
-            <>
-              <h2 className="text-sm font-semibold text-gray-300 mb-2">Probabilities</h2>
-              <ProbabilityHistogram probabilities={probabilities || []} numQubits={numQubits} />
-            </>
-          )}
+      {gates.length > 0 && (
+        <div className="bg-gray-900 border-t border-gray-700 max-w-full overflow-x-auto">
+          <div className="flex border-b border-gray-700">
+            <button
+              className={`px-4 py-2 text-sm ${
+                activeTab === 'probabilities'
+                  ? 'bg-gray-800 text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setActiveTab('probabilities')}
+            >
+              Probabilities
+            </button>
+            <button
+              className={`px-4 py-2 text-sm ${
+                activeTab === 'pulse'
+                  ? 'bg-gray-800 text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-500'
+              }`}
+              onClick={loadPulse}
+            >
+              Pulse
+            </button>
+          </div>
+          <div className="p-4">
+            {activeTab === 'probabilities' ? (
+              <>
+                {numQubits === 1 && stateVector ? (
+                  <div>
+                    <BlochSphere stateVector={stateVector} />
+                    {probabilities && (
+                      <>
+                        <h2 className="text-sm font-semibold text-gray-300 mt-4 mb-2">Measurement Probabilities</h2>
+                        <ProbabilityHistogram probabilities={probabilities} numQubits={numQubits} />
+                      </>
+                    )}
+                    {!probabilities && <p className="text-gray-500">Run simulation to see probabilities.</p>}
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-sm font-semibold text-gray-300 mb-2">Probabilities</h2>
+                    {probabilities ? (
+                      <ProbabilityHistogram probabilities={probabilities} numQubits={numQubits} />
+                    ) : (
+                      <p className="text-gray-500">Run simulation to see probabilities.</p>
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <PulseTimeline qasm={pulseQasm} />
+            )}
+          </div>
         </div>
       )}
     </main>
