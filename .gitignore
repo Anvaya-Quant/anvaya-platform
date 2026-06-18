@@ -8,3 +8,5 @@ project-graph.json
 .pnpm-debug.log
 pnpm-lock.yaml
 *.lock
+*.tsbuildinfo
+Agents.md
