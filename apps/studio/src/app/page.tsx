@@ -24,6 +24,7 @@ export default function Home() {
     clearGates,
     optimize,
     toQasm,
+    setProbabilitiesFromCounts,
   } = useCircuitStore();
 
   const [activeTab, setActiveTab] = useState<'probabilities' | 'pulse'>('probabilities');
@@ -63,6 +64,29 @@ export default function Home() {
           className="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm disabled:opacity-50"
         >
           {status === 'simulating' ? 'Simulating...' : 'Simulate'}
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const qasm = await toQasm();
+              const response = await fetch('http://localhost:3001/simulate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ qasm, shots: 1024 }),
+              });
+              if (!response.ok) throw new Error(`Server error: ${response.status}`);
+              const data = await response.json();
+              if (data.error) throw new Error(data.error);
+              setProbabilitiesFromCounts(data.counts, data.shots);
+              setActiveTab('probabilities');
+            } catch (err: any) {
+              alert('Failed to run on simulator: ' + err.message);
+            }
+          }}
+          disabled={status === 'simulating'}
+          className="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded text-sm disabled:opacity-50"
+        >
+          Run on Simulator
         </button>
         <button onClick={clearGates} className="bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-sm">
           Clear
