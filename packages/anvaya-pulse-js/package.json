@@ -1,0 +1,10 @@
+{
+  "name": "@anvaya/pulse",
+  "version": "0.1.0",
+  "private": true,
+  "main": "pkg/anvaya_pulse.js",
+  "types": "pkg/anvaya_pulse.d.ts",
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}

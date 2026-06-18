@@ -1,0 +1,26 @@
+{
+  "name": "@anvaya/pulse",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/anvaya-pulse-js",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node build.mjs",
+        "cwd": "packages/anvaya-pulse-js"
+      },
+      "inputs": [
+        "{workspaceRoot}/rust/anvaya-pulse/**/*",
+        "{workspaceRoot}/rust/anvaya-pulse-wasm/**/*",
+        "{workspaceRoot}/rust/Cargo.lock",
+        "{projectRoot}/build.mjs"
+      ],
+      "outputs": [
+        "{projectRoot}/pkg"
+      ]
+    },
+    "lint": { "executor": "nx:noop" },
+    "test": { "executor": "nx:noop" }
+  }
+}
