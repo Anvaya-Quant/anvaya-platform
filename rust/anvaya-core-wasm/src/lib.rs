@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 use anvaya_core::circuit::Circuit;
 use anvaya_core::gate::Gate;
 use anvaya_core::optimizer::optimize;
