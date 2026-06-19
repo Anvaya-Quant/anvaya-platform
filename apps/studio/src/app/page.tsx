@@ -6,6 +6,7 @@ import { useCoreReady } from '@/hooks/useCoreReady';
 import { useCircuitStore } from '@/store/circuitStore';
 import CircuitCanvas from '@/components/CircuitCanvas/CircuitCanvas';
 import GatePalette from '@/components/CircuitCanvas/GatePalette';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import ProbabilityHistogram from '@/components/ProbabilityHistogram';
 import PulseTimeline from '@/components/PulseTimeline';
 
@@ -29,6 +30,7 @@ export default function Home() {
 
   const [activeTab, setActiveTab] = useState<'probabilities' | 'pulse'>('probabilities');
   const [pulseQasm, setPulseQasm] = useState('');
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   const loadPulse = async () => {
     try {
@@ -40,13 +42,16 @@ export default function Home() {
     }
   };
 
-  if (error) return <div className="text-red-500 p-8">Core load error: {error}</div>;
-  if (!ready) return <div className="text-gray-400 p-8">Loading ANVAYA Core...</div>;
+  if (error) return <div className="flex items-center justify-center h-screen bg-anvaya-charcoal text-red-400">Core load error: {error}</div>;
+  if (!ready) return <div className="flex items-center justify-center h-screen bg-anvaya-charcoal"><LoadingSpinner message="Loading ANVAYA Core..." /></div>;
 
   return (
-    <main className="flex flex-col h-screen bg-gray-950 text-gray-100">
-      <div className="flex items-center gap-4 p-3 bg-gray-900 border-b border-gray-700">
-        <h1 className="text-xl font-bold text-blue-400 mr-4">ANVAYA Studio</h1>
+    <main className="flex flex-col h-screen bg-anvaya-charcoal text-gray-100">
+      <div className="flex items-center gap-4 p-3 bg-anvaya-dark border-b border-gray-700">
+        <h1 className="text-xl font-bold text-anvaya-cobalt mr-4 flex items-center gap-2">
+          <span className="w-2 h-2 bg-anvaya-cobalt rounded-full" />
+          ANVAYA Studio
+        </h1>
         <label className="text-sm">
           Qubits:{' '}
           <input
@@ -55,7 +60,7 @@ export default function Home() {
             max={10}
             value={numQubits}
             onChange={(e) => setNumQubits(Number(e.target.value))}
-            className="bg-gray-800 border border-gray-600 rounded px-2 py-1 w-16 text-white"
+            className="bg-gray-800 border border-gray-600 rounded px-2 py-1 w-20 text-white"
           />
         </label>
         <button
@@ -116,17 +121,25 @@ export default function Home() {
         >
           Export QASM
         </button>
+        <button
+          onClick={() => setPaletteOpen(!paletteOpen)}
+          className="md:hidden bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm"
+        >
+          {paletteOpen ? 'Hide Gates' : 'Gates'}
+        </button>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 relative">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+        <div className="flex-1 h-1/2 md:h-full relative min-w-0">
           <CircuitCanvas />
         </div>
-        <GatePalette />
+        <div className={`${paletteOpen ? 'block w-full h-1/2' : 'hidden'} md:block md:w-64 overflow-y-auto bg-anvaya-dark border-l border-gray-700`}>
+          <GatePalette />
+        </div>
       </div>
 
       {gates.length > 0 && (
-        <div className="bg-gray-900 border-t border-gray-700 max-w-full overflow-x-auto">
+        <div className="bg-anvaya-dark border-t border-gray-700 max-w-full overflow-x-auto">
           <div className="flex border-b border-gray-700">
             <button
               className={`px-4 py-2 text-sm ${
