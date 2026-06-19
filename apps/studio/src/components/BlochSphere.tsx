@@ -13,8 +13,8 @@ interface BlochSphereProps {
 export default function BlochSphere({ stateVector }: BlochSphereProps) {
   if (!stateVector || stateVector.length < 4) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        Simulate a 1‑qubit circuit to see the Bloch sphere.
+      <div className="w-full h-64 md:h-80 bg-anvaya-dark rounded-lg border border-gray-700 flex items-center justify-center shadow-lg">
+        <span className="text-gray-500 text-sm">Simulate a 1‑qubit circuit to see the Bloch sphere.</span>
       </div>
     );
   }
@@ -22,7 +22,7 @@ export default function BlochSphere({ stateVector }: BlochSphereProps) {
   const [bx, by, bz] = useMemo(() => computeBlochVector(stateVector), [stateVector]);
 
   return (
-    <div className="w-full h-64 md:h-80">
+    <div className="w-full h-64 md:h-80 bg-anvaya-dark rounded-lg border border-gray-700 overflow-hidden shadow-lg">
       <Canvas camera={{ position: [2, 2, 2], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />

@@ -70,39 +70,39 @@ export default function PulseTimeline({ qasm }: { qasm: string }) {
   const timeToX = (t: number) => (t / maxTime) * 100;
 
   return (
-    <div className="min-w-0">
-      <h3 className="text-sm font-semibold text-gray-300 mb-2">Pulse Sequence</h3>
-      <div className="relative overflow-x-auto">
-        <div className="flex flex-col gap-1">
-          {channels.map((ch) => (
-            <div key={ch} className="flex items-center h-6">
-              <span className="w-24 text-xs text-gray-500 shrink-0">{ch}</span>
-              <div className="relative flex-1 h-4 bg-gray-800 rounded-sm min-w-[200px]">
-                {bars
-                  .filter((b) => b.channel === ch)
-                  .map((b, i) => (
-                    <div
-                      key={i}
-                      className="absolute top-0 h-full bg-blue-600 opacity-80 rounded-sm"
-                      style={{
-                        left: `${timeToX(b.start_time)}%`,
-                        width: `${Math.max((b.duration / maxTime) * 100, 0.5)}%`,
-                      }}
-                      title={`${b.amplitude} \u00d7 ${b.duration}ns`}
-                    />
-                  ))}
+    <div className="p-4">
+      <h3 className="text-sm font-semibold text-gray-300 mb-3">Pulse Sequence</h3>
+      <div className="overflow-x-auto">
+        <div className="min-w-max">
+          {channels.map((ch, idx) => (
+            <div key={ch} className="flex items-center h-8 border-b border-gray-800">
+              <span className="w-20 text-xs text-gray-500 font-mono">{ch}</span>
+              <div className="relative flex-1 h-5 bg-gray-900 rounded-full mx-2">
+                  {bars
+                    .filter((b) => b.channel === ch)
+                    .map((b, i) => (
+                      <div
+                        key={i}
+                        className="absolute top-0 h-full bg-anvaya-cobalt opacity-80 rounded-full transition-all"
+                        style={{
+                          left: `${timeToX(b.start_time)}%`,
+                          width: `${Math.max((b.duration / maxTime) * 100, 0.5)}%`,
+                        }}
+                        title={`Amplitude: ${b.amplitude}, Duration: ${b.duration}ns`}
+                      />
+                    ))}
               </div>
             </div>
           ))}
-        </div>
-        <div className="flex text-xs text-gray-600 mt-1">
-          <span className="w-24 shrink-0" />
-          <div className="flex-1 relative h-4 min-w-[200px]">
-            {[0, 0.25, 0.5, 0.75, 1].map((frac) => (
-              <span key={frac} className="absolute" style={{ left: `${frac * 100}%` }}>
-                {(maxTime * frac).toFixed(0)}ns
-              </span>
-            ))}
+          <div className="flex mt-2 text-xs text-gray-600">
+            <span className="w-20" />
+            <div className="flex-1 relative h-4">
+              {[0, 0.25, 0.5, 0.75, 1].map((frac) => (
+                <span key={frac} className="absolute" style={{ left: `${frac * 100}%` }}>
+                  {(maxTime * frac).toFixed(0)}ns
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
