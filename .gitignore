@@ -9,4 +9,6 @@ project-graph.json
 pnpm-lock.yaml
 *.lock
 *.tsbuildinfo
+apps/studio/playwright-report/
+apps/studio/test-results/
 Agents.md
